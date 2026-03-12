@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-app
+  namespace: argocd           # ArgoCD must be installed in this namespace
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io   # Cascade delete on removal
+spec:
+  project: default
+
+  # ── Source: where ArgoCD reads the desired state ──────────────────────────
+  source:
+    repoURL: https://github.com/YOUR_ORG/ecommerce-gitops   # 🔧 Update this
+    targetRevision: main
+    path: k8s        # Folder containing Kubernetes manifests
+
+  # ── Destination: where to deploy ──────────────────────────────────────────
+  destination:
+    server: https://kubernetes.default.svc    # In-cluster deployment
+    namespace: ecommerce
+
+  # ── Sync policy ────────────────────────────────────────────────────────────
+  syncPolicy:
+    automated:
+      prune: true        # Remove resources deleted from Git
+      selfHeal: true     # Auto-fix drift (manual changes in cluster)
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true       # Creates 'ecommerce' namespace if missing
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
+
+  # ── Health checks ──────────────────────────────────────────────────────────
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas    # Allow HPA to manage replicas without sync conflicts
