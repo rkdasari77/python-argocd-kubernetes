@@ -30,7 +30,7 @@ spec:
       containers:
         - name: ecommerce-app
           # ⚠️ GitHub Actions updates this image tag automatically on each push
-          image: your-dockerhub-username/ecommerce-app:latest
+          image: rkdasari0318/ecommerce-app:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
