@@ -2,10 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shopwave
-  namespace: ecommerce
-  labels:
-    app: shopwave
-    version: "1.0.0"
+  namespace: shopwave
 spec:
   replicas: 2
   selector:
@@ -15,59 +12,35 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 0      # Zero-downtime deployments
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: shopwave
     spec:
-      # Security context
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 1000
-
       containers:
         - name: shopwave
-          # ⚠️ GitHub Actions updates this image tag automatically on each push
+          # ↓ GitHub Actions updates this tag automatically on every push
           image: rkdasari0318/shopwave:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
-              name: http
-          
-          env:
-            - name: FLASK_ENV
-              value: "production"
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ecommerce-secrets
-                  key: secret-key
-
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: 100m
+              memory: 128Mi
             limits:
-              cpu: "500m"
-              memory: "256Mi"
-
-          # Health probes
+              cpu: 500m
+              memory: 256Mi
           livenessProbe:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            failureThreshold: 3
-
+            initialDelaySeconds: 10
+            periodSeconds: 15
           readinessProbe:
             httpGet:
               path: /health
               port: 5000
             initialDelaySeconds: 5
             periodSeconds: 10
-            failureThreshold: 3
-
-      restartPolicy: Always
