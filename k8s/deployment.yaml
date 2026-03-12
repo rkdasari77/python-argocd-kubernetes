@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ecommerce-app
+  name: shopwave
   namespace: ecommerce
   labels:
-    app: ecommerce-app
+    app: shopwave
     version: "1.0.0"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: ecommerce-app
+      app: shopwave
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        app: ecommerce-app
+        app: shopwave
     spec:
       # Security context
       securityContext:
@@ -28,9 +28,9 @@ spec:
         fsGroup: 1000
 
       containers:
-        - name: ecommerce-app
+        - name: shopwave
           # ⚠️ GitHub Actions updates this image tag automatically on each push
-          image: rkdasari0318/ecommerce-app:latest
+          image: rkdasari0318/shopwave:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
