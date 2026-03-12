@@ -30,7 +30,7 @@ spec:
       containers:
         - name: shopwave
           # ⚠️ GitHub Actions updates this image tag automatically on each push
-          image: rkdasari0318/shopwave:latest
+          image: rkdasari0318/shopwave:sha-cd81fa6
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
