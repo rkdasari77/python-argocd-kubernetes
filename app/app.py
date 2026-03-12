@@ -1,70 +1,60 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-import json
+from flask import Flask, render_template, session, redirect, url_for, request
 
 app = Flask(__name__)
-app.secret_key = "ecommerce-secret-key-2024"
+app.secret_key = "shopwave-secret-2024"
 
 PRODUCTS = [
-    {"id": 1, "name": "Wireless Headphones", "price": 79.99, "category": "Electronics", "image": "🎧", "rating": 4.5, "reviews": 128},
-    {"id": 2, "name": "Running Shoes", "price": 59.99, "category": "Footwear", "image": "👟", "rating": 4.7, "reviews": 94},
-    {"id": 3, "name": "Leather Backpack", "price": 89.99, "category": "Bags", "image": "🎒", "rating": 4.3, "reviews": 67},
-    {"id": 4, "name": "Smart Watch", "price": 199.99, "category": "Electronics", "image": "⌚", "rating": 4.6, "reviews": 213},
-    {"id": 5, "name": "Sunglasses", "price": 34.99, "category": "Accessories", "image": "🕶️", "rating": 4.2, "reviews": 45},
-    {"id": 6, "name": "Coffee Maker", "price": 49.99, "category": "Kitchen", "image": "☕", "rating": 4.8, "reviews": 301},
-    {"id": 7, "name": "Yoga Mat", "price": 24.99, "category": "Sports", "image": "🧘", "rating": 4.4, "reviews": 88},
-    {"id": 8, "name": "Mechanical Keyboard", "price": 119.99, "category": "Electronics", "image": "⌨️", "rating": 4.7, "reviews": 156},
+    {"id": 1, "name": "Wireless Headphones", "price": 79.99,  "emoji": "🎧", "category": "Electronics"},
+    {"id": 2, "name": "Running Shoes",        "price": 59.99,  "emoji": "👟", "category": "Footwear"},
+    {"id": 3, "name": "Leather Backpack",     "price": 89.99,  "emoji": "🎒", "category": "Bags"},
+    {"id": 4, "name": "Smart Watch",          "price": 199.99, "emoji": "⌚", "category": "Electronics"},
+    {"id": 5, "name": "Coffee Maker",         "price": 49.99,  "emoji": "☕", "category": "Kitchen"},
+    {"id": 6, "name": "Yoga Mat",             "price": 24.99,  "emoji": "🧘", "category": "Sports"},
 ]
+
 
 @app.route("/")
 def index():
-    category = request.args.get("category", "All")
-    search = request.args.get("search", "")
-    cart = session.get("cart", {})
-    cart_count = sum(cart.values())
+    cart   = session.get("cart", {})
+    total  = sum(v for v in cart.values())
+    return render_template("index.html", products=PRODUCTS, cart_count=total)
 
-    filtered = PRODUCTS
-    if category != "All":
-        filtered = [p for p in PRODUCTS if p["category"] == category]
-    if search:
-        filtered = [p for p in filtered if search.lower() in p["name"].lower()]
-
-    categories = ["All"] + sorted(set(p["category"] for p in PRODUCTS))
-    return render_template("index.html", products=filtered, categories=categories,
-                           selected=category, search=search, cart_count=cart_count)
 
 @app.route("/cart")
 def cart():
-    cart = session.get("cart", {})
-    cart_items = []
+    cart  = session.get("cart", {})
+    items = []
     total = 0
     for pid, qty in cart.items():
-        product = next((p for p in PRODUCTS if p["id"] == int(pid)), None)
-        if product:
-            subtotal = product["price"] * qty
-            total += subtotal
-            cart_items.append({**product, "qty": qty, "subtotal": subtotal})
-    return render_template("cart.html", cart_items=cart_items, total=total, cart_count=len(cart))
+        p = next((x for x in PRODUCTS if x["id"] == int(pid)), None)
+        if p:
+            subtotal = p["price"] * qty
+            total   += subtotal
+            items.append({**p, "qty": qty, "subtotal": round(subtotal, 2)})
+    cart_count = sum(cart.values())
+    return render_template("cart.html", items=items, total=round(total, 2), cart_count=cart_count)
 
-@app.route("/add/<int:product_id>")
-def add_to_cart(product_id):
-    cart = session.get("cart", {})
-    key = str(product_id)
-    cart[key] = cart.get(key, 0) + 1
+
+@app.route("/add/<int:pid>")
+def add(pid):
+    cart      = session.get("cart", {})
+    cart[str(pid)] = cart.get(str(pid), 0) + 1
     session["cart"] = cart
     return redirect(url_for("index"))
 
-@app.route("/remove/<int:product_id>")
-def remove_from_cart(product_id):
+
+@app.route("/remove/<int:pid>")
+def remove(pid):
     cart = session.get("cart", {})
-    key = str(product_id)
-    if key in cart:
-        del cart[key]
+    cart.pop(str(pid), None)
     session["cart"] = cart
     return redirect(url_for("cart"))
 
+
 @app.route("/health")
 def health():
-    return {"status": "healthy", "service": "ecommerce-app"}, 200
+    return {"status": "ok"}, 200
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000)
