@@ -1,19 +1,17 @@
 FROM python:3.12-slim
 
-# Security: run as non-root
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN addgroup --system app && adduser --system --ingroup app app
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY app/ .
 
-RUN chown -R appuser:appgroup /app
-USER appuser
+RUN chown -R app:app /app
+USER app
 
 EXPOSE 5000
 
-# Use gunicorn in production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "60", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
