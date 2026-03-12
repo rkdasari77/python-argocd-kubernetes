@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopwave
+  namespace: shopwave
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopwave
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0          # zero-downtime
+  template:
+    metadata:
+      labels:
+        app: shopwave
+    spec:
+      containers:
+        - name: shopwave
+          # ↓ GitHub Actions updates this tag automatically on every push
+          image: DOCKERHUB_USERNAME/shopwave:latest
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10

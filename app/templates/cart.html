@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart — ShopWave</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f6fb; color: #1a1a2e; }
+
+    nav {
+      background: #1a1a2e; padding: 1rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .logo  { color: #f5c518; font-size: 1.5rem; font-weight: 700; }
+    .back  { color: #aaa; text-decoration: none; font-size: .9rem; }
+    .back:hover { color: #f5c518; }
+
+    .container { max-width: 700px; margin: 2.5rem auto; padding: 0 1.5rem; }
+    h2 { font-size: 1.6rem; margin-bottom: 1.5rem; }
+
+    .item {
+      background: white; border-radius: 10px;
+      padding: 1rem 1.2rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .item-emoji { font-size: 2.2rem; }
+    .item-info  { flex: 1; }
+    .item-name  { font-weight: 600; }
+    .item-meta  { font-size: .85rem; color: #888; margin-top: .2rem; }
+    .item-price { font-weight: 700; font-size: 1.1rem; }
+    .remove     { font-size: .8rem; color: #e74c3c; text-decoration: none; display: block; margin-top: .3rem; }
+    .remove:hover { text-decoration: underline; }
+
+    .summary {
+      background: white; border-radius: 10px;
+      padding: 1.2rem 1.5rem; margin-top: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .summary-row { display: flex; justify-content: space-between; padding: .4rem 0; color: #666; }
+    .summary-total {
+      display: flex; justify-content: space-between;
+      font-size: 1.15rem; font-weight: 700;
+      padding-top: .8rem; margin-top: .5rem;
+      border-top: 1px solid #eee;
+    }
+    .checkout {
+      display: block; text-align: center;
+      background: #f5c518; color: #1a1a2e;
+      padding: .85rem; border-radius: 8px;
+      font-weight: 700; text-decoration: none;
+      margin-top: 1.2rem; font-size: 1rem;
+    }
+    .checkout:hover { background: #e0b000; }
+
+    .empty { text-align: center; padding: 4rem 1rem; color: #888; }
+    .empty .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .shop-link { display: inline-block; margin-top: 1rem; color: #1a1a2e; font-weight: 600; text-decoration: none; }
+    .shop-link:hover { color: #f5c518; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">ShopWave</div>
+  <a href="/" class="back">← Continue Shopping</a>
+</nav>
+
+<div class="container">
+  <h2>Your Cart</h2>
+
+  {% if items %}
+    {% for item in items %}
+    <div class="item">
+      <div class="item-emoji">{{ item.emoji }}</div>
+      <div class="item-info">
+        <div class="item-name">{{ item.name }}</div>
+        <div class="item-meta">Qty: {{ item.qty }} × ${{ "%.2f" | format(item.price) }}</div>
+        <a href="/remove/{{ item.id }}" class="remove">Remove</a>
+      </div>
+      <div class="item-price">${{ "%.2f" | format(item.subtotal) }}</div>
+    </div>
+    {% endfor %}
+
+    <div class="summary">
+      <div class="summary-row"><span>Subtotal</span><span>${{ "%.2f" | format(total) }}</span></div>
+      <div class="summary-row"><span>Shipping</span><span>Free</span></div>
+      <div class="summary-total"><span>Total</span><span>${{ "%.2f" | format(total) }}</span></div>
+      <a href="#" class="checkout">Proceed to Checkout →</a>
+    </div>
+
+  {% else %}
+    <div class="empty">
+      <div class="icon">🛒</div>
+      <p>Your cart is empty.</p>
+      <a href="/" class="shop-link">Start Shopping →</a>
+    </div>
+  {% endif %}
+</div>
+
+</body>
+</html>
