@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: shopwave
-          image: rkdasari0318/shopwave:sha-d0df401
+          image: rkdasari0318/shopwave:sha-b724691
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
